@@ -22,9 +22,6 @@
       "@assets/*":[
         "./src/assets/*"
       ],
-      "@theme/*":[
-        "./src/theme/*"
-      ],
       "@utils/*":[
         "./src/utils/*"
       ],
