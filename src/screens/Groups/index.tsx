@@ -1,4 +1,5 @@
 
+import { Button } from '@components/Button';
 import { GroupCard } from '@components/GroupCard';
 import { Header } from '@components/Header';
 import { Highlight } from '@components/HightLight';
@@ -29,6 +30,10 @@ export function Groups() {
         )}
       />
 
+      
+    <Button 
+        title='Criar nova turma'
+      />
       
     </Container>
     )}
