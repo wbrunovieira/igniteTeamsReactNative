@@ -18,7 +18,6 @@ export function NewGroup() {
   const navigation = useNavigation()
 
   async function handleNew(){
-
     try {
       if(group.trim().length === 0 ){
          return Alert.alert('Novo Group', 'digite o nome da turma')
