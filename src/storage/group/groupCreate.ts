@@ -8,6 +8,8 @@ export async function groupCreate(newGroup: string) {
 
     const storedGroups = await groupsGetAll();
 
+    const groupAllreadyExist = storedGroups.includes(newG)
+
     const storage = JSON.stringify([...storedGroups, newGroup])
     
     await AsyncStorage.setItem(GROUP_COLLECTION, storage);
