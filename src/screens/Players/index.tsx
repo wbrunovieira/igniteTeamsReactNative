@@ -1,3 +1,8 @@
+import { useEffect, useState, useRef } from "react";
+import { useRoute } from "@react-navigation/native";
+import { Alert, FlatList, TextInput } from "react-native";
+import { AppError } from "@utils/AppError";
+
 import { ButtonIcon } from "@components/ButtonIcon";
 import { Filter } from "@components/Filter";
 import { Header } from "@components/Header";
@@ -5,14 +10,11 @@ import { Highlight } from "@components/HightLight";
 import { Input } from "@components/Input";
 import { ListEmpty } from "@components/ListEmpty";
 import { PlayerCard } from "@components/PlayerCard";
-import { useRoute } from "@react-navigation/native";
+
 import { playerAddByGroup } from "@storage/player/playerAddByGroup";
 import { playersGetByGroup } from "@storage/player/playersGetByGroup";
 import { playersGetByGroupAndTeam } from "@storage/player/playersGetByGroupAndTeam";
 import { PlayerStorageDTO } from "@storage/player/PlayerStorageDTO";
-import { AppError } from "@utils/AppError";
-import { useEffect, useState } from "react";
-import { Alert, FlatList } from "react-native";
 
 import { Container, Form, HeaderList, NumberOfPlayers } from "./styles";
 
@@ -29,6 +31,8 @@ export function Players() {
 
   const route = useRoute()
   const { group } = route.params as RouteParams;
+
+  const newPlayerNameInputRef = useRef<TextInput>(null)
 
   async function handleAddPlayer(){
 
@@ -48,9 +52,10 @@ export function Players() {
     try {
 
       await playerAddByGroup(newPlayer, group);
+      setNewPlayerName('')
+
       fetchPlayersByTeam()
 
-     
       
     } catch (error) {
       if(error instanceof AppError){
@@ -69,6 +74,8 @@ export function Players() {
     try {
 
       const playersByTeam = await playersGetByGroupAndTeam(group, team);
+
+      newPlayerNameInputRef.current?.blur();
 
       setPlayers(playersByTeam)
 
@@ -99,7 +106,9 @@ export function Players() {
 
       <Form>
         <Input
+          inputRef={newPlayerNameInputRef}
           onChangeText={setNewPlayerName} 
+          value={newPlayerName}
           placeholder="Nome da pessoa"
           autoCorrect={false}
         />
