@@ -8,8 +8,10 @@ import { PlayerCard } from "@components/PlayerCard";
 import { useRoute } from "@react-navigation/native";
 import { playerAddByGroup } from "@storage/player/playerAddByGroup";
 import { playersGetByGroup } from "@storage/player/playersGetByGroup";
+import { playersGetByGroupAndTeam } from "@storage/player/playersGetByGroupAndTeam";
+import { PlayerStorageDTO } from "@storage/player/PlayerStorageDTO";
 import { AppError } from "@utils/AppError";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Alert, FlatList } from "react-native";
 
 import { Container, Form, HeaderList, NumberOfPlayers } from "./styles";
@@ -23,12 +25,12 @@ export function Players() {
 
   const [ newPlayerName, setNewPlayerName ] = useState('')
   const [ team, setTeam ] = useState('Time A')
-  const [ players, setPlayers ] = useState([])
+  const [ players, setPlayers ] = useState<PlayerStorageDTO[]>([])
 
   const route = useRoute()
   const { group } = route.params as RouteParams;
 
-  async function handleAddplayer(){
+  async function handleAddPlayer(){
 
     if(newPlayerName.trim().length === 0 ){
 
@@ -46,10 +48,9 @@ export function Players() {
     try {
 
       await playerAddByGroup(newPlayer, group);
+      fetchPlayersByTeam()
 
-      const players = await playersGetByGroup(group)
-
-      console.log(players)
+     
       
     } catch (error) {
       if(error instanceof AppError){
@@ -62,6 +63,29 @@ export function Players() {
     }
 
   }
+
+  async function fetchPlayersByTeam() {
+
+    try {
+
+      const playersByTeam = await playersGetByGroupAndTeam(group, team);
+
+      setPlayers(playersByTeam)
+
+    } catch (error) {
+
+      console.log(error);
+      Alert.alert('Pessoas', 'Não foi possível carregar as pessoas do time selecionado.');
+
+    }
+
+  }
+
+  useEffect(() => {
+
+    fetchPlayersByTeam();
+
+  },[team])
 
   
   return (
@@ -82,7 +106,7 @@ export function Players() {
 
         <ButtonIcon 
           icon="add" 
-          onPress={handleAddplayer}
+          onPress={handleAddPlayer}
         />
 
         
@@ -110,10 +134,10 @@ export function Players() {
 
       <FlatList 
         data={players}
-        keyExtractor={item => item}
+        keyExtractor={item => item.name}
         renderItem={({ item }) => (
           <PlayerCard 
-            name={item} 
+            name={item.name} 
             onRemove={() => {}}
           />
         )}
