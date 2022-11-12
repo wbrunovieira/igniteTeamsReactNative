@@ -6,8 +6,11 @@ import { Input } from "@components/Input";
 import { ListEmpty } from "@components/ListEmpty";
 import { PlayerCard } from "@components/PlayerCard";
 import { useRoute } from "@react-navigation/native";
+import { playerAddByGroup } from "@storage/player/playerAddByGroup";
+import { playersGetByGroup } from "@storage/player/playersGetByGroup";
+import { AppError } from "@utils/AppError";
 import { useState } from "react";
-import { FlatList } from "react-native";
+import { Alert, FlatList } from "react-native";
 
 import { Container, Form, HeaderList, NumberOfPlayers } from "./styles";
 
@@ -17,11 +20,48 @@ type RouteParams = {
 
 export function Players() {
 
-  const [team, setTeam] = useState('Time A')
-  const [players, setPlayers] = useState(['Bruno', 'Stephanie'])
+
+  const [ newPlayerName, setNewPlayerName ] = useState('')
+  const [ team, setTeam ] = useState('Time A')
+  const [ players, setPlayers ] = useState([])
 
   const route = useRoute()
-  const { group } = route.params as RouteParams
+  const { group } = route.params as RouteParams;
+
+  async function handleAddplayer(){
+
+    if(newPlayerName.trim().length === 0 ){
+
+      return Alert.alert('Novo Player', 'digite o nome do jogador')
+
+    }
+
+
+    const newPlayer = {
+
+      name: newPlayerName,
+      team
+    }
+
+    try {
+
+      await playerAddByGroup(newPlayer, group);
+
+      const players = await playersGetByGroup(group)
+
+      console.log(players)
+      
+    } catch (error) {
+      if(error instanceof AppError){
+        Alert.alert('Nova pessoa', error.message)
+      } else {
+        console.log (error);
+        Alert.alert('Nova pessoa', 'Nao foi possivel adcionar')
+      }
+      
+    }
+
+  }
 
   
   return (
@@ -34,13 +74,15 @@ export function Players() {
       />
 
       <Form>
-        <Input 
+        <Input
+          onChangeText={setNewPlayerName} 
           placeholder="Nome da pessoa"
           autoCorrect={false}
         />
 
         <ButtonIcon 
           icon="add" 
+          onPress={handleAddplayer}
         />
 
         
