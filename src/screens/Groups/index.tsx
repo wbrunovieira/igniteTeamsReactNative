@@ -10,10 +10,13 @@ import { ListEmpty } from '@components/ListEmpty';
 import { groupsGetAll } from '@storage/group/groupsGetAll';
 import { FlatList } from 'react-native';
 import { Container } from './styles';
+import { Loading } from '@components/Loading';
 
 export function Groups() {
 
   const [ groups, setGroups ] = useState<string[]>([]);
+  const [ isLoading, setIsLoading ] = useState(true);
+
   const navigation = useNavigation()
 
   function handleNewGroup() {
@@ -21,14 +24,21 @@ export function Groups() {
   }
 
   async function fetchGroups(){
+
     try {
+      
+      setIsLoading(true)
 
       const data = await groupsGetAll()
 
       setGroups(data)
       
     } catch (error) {
+
       console.log(error)
+    } finally {
+
+      setIsLoading(false);
     }
   }
 
@@ -49,6 +59,8 @@ useFocusEffect(useCallback(() => {
         subtitle="jogue com a sua turma"
       />
 
+    { isLoading ? <Loading /> : 
+
       <FlatList
         data={groups}
         keyExtractor={item => item}
@@ -62,7 +74,7 @@ useFocusEffect(useCallback(() => {
         )}
       />
 
-      
+}      
     <Button
         title='Criar nova turma'
         onPress={handleNewGroup}

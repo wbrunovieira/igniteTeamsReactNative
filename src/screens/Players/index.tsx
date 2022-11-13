@@ -21,6 +21,7 @@ import { playerRemoveByGroup } from "@storage/player/playerRemoveByGroup";
 import { groupRemoveByName } from "@storage/group/groupRemoveByName";
 
 import { Container, Form, HeaderList, NumberOfPlayers } from "./styles";
+import { Loading } from "@components/Loading";
 
 type RouteParams = {
   group: string
@@ -32,6 +33,7 @@ export function Players() {
   const [ newPlayerName, setNewPlayerName ] = useState('')
   const [ team, setTeam ] = useState('Time A')
   const [ players, setPlayers ] = useState<PlayerStorageDTO[]>([])
+  const [ isLoading, setIsLoading ] = useState(true);
 
   const route = useRoute()
   const navigation = useNavigation();
@@ -79,6 +81,8 @@ export function Players() {
 
     try {
 
+      setIsLoading(true)
+
       const playersByTeam = await playersGetByGroupAndTeam(group, team);
 
       newPlayerNameInputRef.current?.blur();
@@ -90,6 +94,9 @@ export function Players() {
       console.log(error);
       Alert.alert('Pessoas', 'Não foi possível carregar as pessoas do time selecionado.');
 
+    } finally {
+
+      setIsLoading(false)
     }
 
   }
@@ -166,8 +173,9 @@ export function Players() {
       </Form>
 
 
-<HeaderList>
-<FlatList 
+    <HeaderList>
+
+    <FlatList 
           data={['Time A', 'Time B']}
           keyExtractor={item => item}
           renderItem={({ item }) => (
@@ -180,10 +188,15 @@ export function Players() {
           horizontal
         />
 
+      
+
         <NumberOfPlayers>
           {players.length}
         </NumberOfPlayers>
       </HeaderList>
+
+    { isLoading ? <Loading /> : 
+
 
       <FlatList 
         data={players}
@@ -200,6 +213,8 @@ export function Players() {
         showsVerticalScrollIndicator={false}
         contentContainerStyle={[{ paddingBottom: 100 }, players.length === 0 && { flex: 1 }]}
       />
+
+        }
 
       <Button 
         title="Remover Turma"
